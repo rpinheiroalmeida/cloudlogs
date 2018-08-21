@@ -10,18 +10,19 @@ import (
 )
 
 func main() {
-
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
 		SharedConfigState: session.SharedConfigEnable,
 	}))
 
 	svc := cloudwatchlogs.New(sess)
 
-	param := &cloudwatchlogs.DescribeLogGroupsInput{
-		Limit:              aws.Int64(50),
-		LogGroupNamePrefix: aws.String("prod"),
+	filter := &cloudwatchlogs.DescribeLogStreamsInput{
+		LogGroupName:        aws.String("prod"),
+		Descending:          aws.Bool(true),
+		LogStreamNamePrefix: aws.String("bluemartini-website"),
 	}
-	resp, err := svc.DescribeLogGroups(param)
+
+	resp, err := svc.DescribeLogStreams(filter)
 	if err != nil {
 		fmt.Println("Got error getting alarm descriptions")
 		fmt.Println(err.Error())
@@ -29,7 +30,7 @@ func main() {
 	}
 
 	fmt.Println(resp)
-	for _, logGroups := range resp.LogGroups {
-		fmt.Println(*logGroups.LogGroupName)
+	for _, logStreams := range resp.LogStreams {
+		fmt.Println(*logStreams.LogStreamName)
 	}
 }
